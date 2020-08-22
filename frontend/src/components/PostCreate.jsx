@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import InputGroup from './common/InputGroup';
 import TextareaGroup from './common/TextareaGroup';
 import axios from 'axios';
+import Joi from 'joi-browser';
 // import SelectGroup from './common/SelectGroup';
 import SelectInput from './common/SelectInput';
 import { Modal, Button } from 'react-bootstrap';
+
 class PostCreate extends Component {
   state = {
     title: '',
@@ -15,7 +17,36 @@ class PostCreate extends Component {
     catModal: false,
     name: '',
     selected: [],
+    errors: {},
   };
+  schema = {
+    title: Joi.string().required().label('Title'),
+    body: Joi.string().required().label('Body'),
+  };
+
+  validate = () => {
+    const data = {
+      title: this.state.title,
+      body: this.state.body,
+    };
+    const { error } = Joi.validate(data, this.schema, { abortEarly: false });
+    if (!error) return null;
+    const errors = {};
+    for (let item of error.details) errors[item.path[0]] = item.message;
+    return errors;
+  };
+
+  propertyValidate = ({ name, value }) => {
+    const data = {
+      [name]: value,
+    };
+    const schema = {
+      [name]: this.schema[name],
+    };
+    const { error } = Joi.validate(data, schema);
+    return error ? error.details[0].message : null;
+  };
+
   async componentDidMount() {
     const { data } = await axios.get('http://localhost:3001/catagory');
     this.setState({ options: data });
@@ -23,6 +54,10 @@ class PostCreate extends Component {
   }
   handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = this.validate();
+    this.setState({
+      errors: errors || {},
+    });
     const { title, body, selected } = this.state;
     let list = selected.filter((item) => item !== 'name');
     const data = {
@@ -44,6 +79,11 @@ class PostCreate extends Component {
     }
   };
   onChange = (e) => {
+    const errors = { ...this.state.errors };
+    const error = this.propertyValidate(e.target);
+    if (error) errors[e.target.name] = error;
+    else delete errors[e.target.name];
+
     if (e.target.value === 'new') {
       this.setState({
         catModal: true,
@@ -52,6 +92,7 @@ class PostCreate extends Component {
     }
     this.setState({
       [e.target.name]: e.target.value,
+      errors,
     });
   };
   handleShow = () => {
@@ -95,6 +136,7 @@ class PostCreate extends Component {
       options: [...this.state.options, result.data],
       catModal: false,
       name: '',
+      show: true,
     });
   };
   render() {
@@ -123,12 +165,14 @@ class PostCreate extends Component {
                     placeholder='Title'
                     value={this.state.title}
                     onChange={this.onChange}
+                    error={this.state.errors.title}
                   />
                   <TextareaGroup
                     name='body'
                     placeholder='body'
                     value={this.state.body}
                     onChange={this.onChange}
+                    error={this.state.errors.body}
                   />
                   {/* <SelectGroup
                     name='catId'

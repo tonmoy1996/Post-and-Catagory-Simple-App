@@ -218,7 +218,7 @@ class PostComponent extends Component {
                     options={newOptions}
                     onSelectChange={this.onSelectChange}
                   />
-                  <button className='btn btn-primary mt-4'>Add</button>
+                  <button className='btn btn-primary mt-4'>Edit</button>
                 </form>
               </Modal.Body>
               <Modal.Footer>

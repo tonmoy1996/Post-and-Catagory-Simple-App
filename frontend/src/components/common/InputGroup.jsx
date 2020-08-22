@@ -1,6 +1,6 @@
 import React from 'react';
 
-function InputGroup({ name, placeholder, value, onChange }) {
+function InputGroup({ name, placeholder, value, onChange, error }) {
   return (
     <div className='form-group'>
       <input
@@ -11,6 +11,13 @@ function InputGroup({ name, placeholder, value, onChange }) {
         value={value}
         onChange={onChange}
       />
+      {error ? (
+        <div class='alert alert-danger' role='alert'>
+          {error}
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 }

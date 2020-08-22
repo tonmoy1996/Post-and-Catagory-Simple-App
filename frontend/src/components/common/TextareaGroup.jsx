@@ -1,6 +1,6 @@
 import React from 'react';
 
-function TextareaGroup({ name, placeholder, value, onChange }) {
+function TextareaGroup({ name, placeholder, value, onChange, error }) {
   return (
     <div className='form-group'>
       <textarea
@@ -10,8 +10,15 @@ function TextareaGroup({ name, placeholder, value, onChange }) {
         name={name}
         value={value}
         onChange={onChange}
-        rows="3"
+        rows='3'
       ></textarea>
+      {error ? (
+        <div class='alert alert-danger' role='alert'>
+          {error}
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 }
